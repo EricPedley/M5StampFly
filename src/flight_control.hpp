@@ -43,6 +43,7 @@
 #define LOG_MODE          4
 #define AUTO_LANDING_MODE 5
 #define FLIP_MODE         6
+#define NN_MODE           7
 
 #define POWER_LIMIT         3.34
 #define UNDER_VOLTAGE_COUNT 100

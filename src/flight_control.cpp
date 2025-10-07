@@ -38,6 +38,7 @@
 // 2024-08-10 Acroモードで高度制御働かないバグを修正
 
 #include "flight_control.hpp"
+#include "nn_control.hpp"
 #include "rc.hpp"
 #include "pid.hpp"
 #include "sensor.hpp"
@@ -345,11 +346,15 @@ void loop_400Hz(void) {
         // Get command
         get_command();
 
-        // Angle Control
-        angle_control();
+        if(Mode == NN_MODE) {
+            nn_control();
+        } else {
+            // Angle Control
+            angle_control();
+            // Rate Control
+            rate_control();
+        }
 
-        // Rate Control
-        rate_control();
     } else if (Mode == FLIP_MODE) {
         flip();
     } else if (Mode == PARKING_MODE) {
