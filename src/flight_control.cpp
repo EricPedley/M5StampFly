@@ -354,6 +354,7 @@ void loop_400Hz(void) {
             // Rate Control
             rate_control();
         }
+        telemetry_fast();
 
     } else if (Mode == FLIP_MODE) {
         flip();
@@ -407,7 +408,6 @@ void loop_400Hz(void) {
     }
 
     //// Telemetry
-    telemetry_fast();
     // telemetry();
 
     uint32_t ce_time = micros();
