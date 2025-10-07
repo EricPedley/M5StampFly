@@ -182,12 +182,13 @@ void telemetry_fast(void) {
     //   telemetry_sequence400();
     // }
     else if (Mode > AVERAGE_MODE) {
-        const uint8_t N = 8;
-        // N回に一度送信
-        if (Telem_cnt == 0) telemetry_sequence_fast();
-        Telem_cnt++;
-        if (Telem_cnt > N - 1) Telem_cnt = 0;
-        // telemetry_sequence();
+        telemetry_sequence_fast();
+        // const uint8_t N = 1;
+        // // N回に一度送信
+        // if (Telem_cnt == 0) telemetry_sequence_fast();
+        // Telem_cnt++;
+        // if (Telem_cnt > N - 1) Telem_cnt = 0;
+        // // telemetry_sequence();
     }
 }
 
@@ -213,12 +214,16 @@ void make_telemetry_data_fast(uint8_t* senddata) {
     index       = 2;
 
     data_set(senddata, Elapsed_time, &index);  // 1 Time
-    data_set(senddata, Mode, &index);          // 3 Accel_z
-    data_set(senddata, Alt_flag, &index);      // 2 Accel_z_raw
-    data_set(senddata, RawRange / 1000.0, &index);
-    data_set(senddata, Altitude, &index);
-    data_set(senddata, Altitude2, &index);
-    data_set(senddata, Alt_ref, &index);
+    data_set(senddata, Accel_x, &index);                       // 16 Accel_x_raw
+    data_set(senddata, Accel_y, &index);                       // 17 Accel_y_raw
+    data_set(senddata, Accel_z, &index);                       // 18 Accel_z_raw
+    data_set(senddata, Roll_rate, &index);                       // 16 Accel_x
+    data_set(senddata, Pitch_rate, &index);                       // 17 Accel_y
+    data_set(senddata, Yaw_rate, &index);                       // 18 Accel_z
+    data_set(senddata, FrontRight_motor_duty, &index);
+    data_set(senddata, FrontLeft_motor_duty, &index);  // 21 FrontLeft_motor_duty
+    data_set(senddata, RearRight_motor_duty, &index);  // 22 RearRight_motor_duty
+    data_set(senddata, RearLeft_motor_duty, &index);
 }
 
 void data_set(uint8_t* datalist, float value, uint8_t* index) {
