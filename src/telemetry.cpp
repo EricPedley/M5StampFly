@@ -197,7 +197,7 @@ void telemetry_sequence_fast(void) {
 
     make_telemetry_data_fast(senddata);
     // Send !
-    if (telemetry_send(senddata, MININDEX) == 1)
+    if (telemetry_send(senddata, MAXINDEX) == 1)
         esp_led(0x110000, 1);  // Telemetory Reciver OFF
     else
         esp_led(0x001100, 1);  // Telemetory Reciver ON
