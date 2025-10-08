@@ -224,6 +224,7 @@ void make_telemetry_data_fast(uint8_t* senddata) {
     data_set(senddata, FrontLeft_motor_duty, &index);  // 21 FrontLeft_motor_duty
     data_set(senddata, RearRight_motor_duty, &index);  // 22 RearRight_motor_duty
     data_set(senddata, RearLeft_motor_duty, &index);
+    data_set(senddata, Voltage, &index);                           // 15 Voltage
 }
 
 void data_set(uint8_t* datalist, float value, uint8_t* index) {
