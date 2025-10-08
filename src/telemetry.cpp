@@ -32,7 +32,7 @@
 
 uint8_t Telem_mode     = 0;
 uint8_t Telem_cnt      = 0;
-const uint8_t MAXINDEX = 120;
+const uint8_t MAXINDEX = 60;
 const uint8_t MININDEX = 30;
 
 void telemetry_sequence(void);
@@ -168,28 +168,28 @@ void make_telemetry_data(uint8_t* senddata) {
 
 void telemetry_fast(void) {
     uint8_t senddata[MAXINDEX];
+    telemetry_sequence_fast();
 
-    if (Telem_mode == 0) {
-        // Send header data
-        Telem_mode = 1;
-        make_telemetry_header_data(senddata);
+    // if (Telem_mode == 0) {
+    //     // Send header data
+    //     Telem_mode = 1;
+    //     make_telemetry_header_data(senddata);
 
-        // Send !
-        telemetry_send(senddata, sizeof(senddata));
-    }
-    // else if(Mode > AVERAGE_MODE)
-    //{
-    //   telemetry_sequence400();
+    //     // Send !
+    //     telemetry_send(senddata, sizeof(senddata));
     // }
-    else if (Mode > AVERAGE_MODE) {
-        telemetry_sequence_fast();
-        // const uint8_t N = 1;
-        // // N回に一度送信
-        // if (Telem_cnt == 0) telemetry_sequence_fast();
-        // Telem_cnt++;
-        // if (Telem_cnt > N - 1) Telem_cnt = 0;
-        // // telemetry_sequence();
-    }
+    // // else if(Mode > AVERAGE_MODE)
+    // //{
+    // //   telemetry_sequence400();
+    // // }
+    // else if (Mode > AVERAGE_MODE) {
+    //     // const uint8_t N = 1;
+    //     // // N回に一度送信
+    //     // if (Telem_cnt == 0) telemetry_sequence_fast();
+    //     // Telem_cnt++;
+    //     // if (Telem_cnt > N - 1) Telem_cnt = 0;
+    //     // // telemetry_sequence();
+    // }
 }
 
 void telemetry_sequence_fast(void) {
