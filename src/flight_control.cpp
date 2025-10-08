@@ -230,7 +230,6 @@ void reset_rate_control(void);
 void reset_angle_control(void);
 uint8_t auto_landing(void);
 float get_trim_duty(float voltage);
-void flip(void);
 float get_rate_ref(float x);
 
 // 割り込み関数
@@ -356,8 +355,6 @@ void loop_400Hz(void) {
         }
         telemetry_fast();
 
-    } else if (Mode == FLIP_MODE) {
-        flip();
     } else if (Mode == PARKING_MODE) {
         // Judge Mode change
         if (judge_mode_change() == 1) {
@@ -415,123 +412,6 @@ void loop_400Hz(void) {
     OldMode          = Mode;  // Memory now mode
     // End of Loop_400Hz function
 }
-
-void flip(void) {
-    float domega;
-    float flip_delay;
-    uint16_t flip_step;
-
-    Control_period = Interval_time;
-    Led_color      = FLIPCOLOR;
-
-    // Judge Mode change
-    if (judge_mode_change() == 1) Mode = AUTO_LANDING_MODE;
-    if (rc_isconnected() == 0) Mode = AUTO_LANDING_MODE;
-    if (OverG_flag == 1) Mode = PARKING_MODE;
-
-    // Flip parameter set
-    Flip_time            = 0.4;
-    Pitch_rate_reference = 0.0;
-    domega               = 0.00217f * 8.0 * PI / Flip_time / Flip_time;  // 25->22->23->225->222->221->220
-    flip_delay           = 180;
-    flip_step            = (uint16_t)(Flip_time / 0.0025f);
-    T_flip               = get_trim_duty(Voltage) * BATTERY_VOLTAGE;
-
-    // Flip Sequence
-    if (Flip_counter < flip_delay)  // 一時的な上昇
-    {
-        Flip_flag = 1;
-        // Roll_rate_reference = 0.0f;
-        if (Voltage > 3.8)
-            Thrust_command = T_flip + 0.17 * BATTERY_VOLTAGE;
-        else
-            Thrust_command = T_flip + 0.15 * BATTERY_VOLTAGE;
-        // Angle Control
-        Roll_angle_command  = 0.0;
-        Pitch_angle_command = 0.0;
-        angle_control();
-        // Rate Control
-        Yaw_rate_command = 0.0;
-        rate_control();
-        Flip_counter++;
-    } else if (Flip_counter < (flip_step / 4 + flip_delay))  // 宙返り開始(0deg-90deg)
-    {
-        Flip_flag      = 2;
-        Thrust_command = T_flip * 0.3f;  // 1.05//0.4
-        // Rate Control
-        Roll_rate_reference = Roll_rate_reference + domega;
-        Pitch_rate_command  = 0.0;
-        Yaw_rate_command    = 0.0;
-        rate_control();
-        Flip_counter++;
-    } else if (Flip_counter < (2 * flip_step / 4 + flip_delay))  // 宙返り(90deg-180deg)
-    {
-        Flip_flag      = 3;
-        Thrust_command = T_flip * 0.15f;  // 1.0//0.2
-        // Rate Control
-        Roll_rate_reference = Roll_rate_reference + domega;
-        Pitch_rate_command  = 0.0f;
-        Yaw_rate_command    = 0.0f;
-        rate_control();
-        Flip_counter++;
-    } else if (Flip_counter < (3 * flip_step / 4 + flip_delay))  // 宙返り(180deg-270deg)
-    {
-        Flip_flag      = 4;
-        Thrust_command = T_flip * 0.15f;  // 1.0//0.2
-        // Rate Control
-        Roll_rate_reference = Roll_rate_reference - domega;
-        Pitch_rate_command  = 0.0f;
-        Yaw_rate_command    = 0.0f;
-        rate_control();
-        Flip_counter++;
-    } else if (Flip_counter < (flip_step + flip_delay))  // 宙返り(270deg-360deg)
-    {
-        Flip_flag      = 5;
-        Thrust_command = T_flip * 1.0f;
-        // Rate Control
-        Roll_rate_reference = Roll_rate_reference - domega;
-        Pitch_rate_command  = 0.0f;
-        Yaw_rate_command    = 0.0f;
-        rate_control();
-        Flip_counter++;
-    } else if (Flip_counter < (flip_step + flip_delay + 10))  // 元に戻す準備
-    {
-        Flip_flag = 6;
-        if (Ahrs_reset_flag == 0) {
-            Ahrs_reset_flag = 1;
-            ahrs_reset();
-        }
-        Thrust_command = T_flip + 0.18f * BATTERY_VOLTAGE;
-        // Rate Control
-        Roll_rate_reference = 0.0f;
-        Pitch_rate_command  = 0.0f;
-        Yaw_rate_command    = 0.0f;
-        rate_control();
-
-        // Angle PID Reset
-        phi_pid.reset();
-        theta_pid.reset();
-
-        Flip_counter++;
-    } else if (Flip_counter < (flip_step + flip_delay + 200))  // 連続Flipの抑制
-    {
-        Flip_flag = 0;
-        // Get command
-        get_command();
-        // Angle Control
-        angle_control();
-        // Rate Control
-        rate_control();
-        Flip_counter++;
-    } else {
-        // Return to Flight Mode
-        Flip_flag       = 0;
-        Ahrs_reset_flag = 0;
-        Flip_counter    = 0;
-        Mode            = FLIGHT_MODE;
-    }
-}
-
 uint8_t judge_mode_change(void) {
     // Ariming Button が押されて離されたかを確認
     uint8_t state;
