@@ -346,7 +346,7 @@ void loop_400Hz(void) {
         get_command();
 
         if(Mode == NN_MODE) {
-            // nn_control();
+            nn_control();
         } else {
             // Angle Control
             angle_control();
