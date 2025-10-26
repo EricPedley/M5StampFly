@@ -64,22 +64,21 @@ void nn_control(void) {
     // desired_pos_b,
 
     nn_forward(nn_input, nn_output);
-
-
-        if (OverG_flag == 0) {
-            set_duty_fr(FrontRight_motor_duty);
-            set_duty_fl(FrontLeft_motor_duty);
-            set_duty_rr(RearRight_motor_duty);
-            set_duty_rl(RearLeft_motor_duty);
-        } else {
-            FrontRight_motor_duty = 0.0;
-            FrontLeft_motor_duty  = 0.0;
-            RearRight_motor_duty  = 0.0;
-            RearLeft_motor_duty   = 0.0;
-            motor_stop();
-            // OverG_flag=0;
-            Mode = PARKING_MODE;
-        }
+    if (OverG_flag == 0) {
+        set_duty_fr(FrontRight_motor_duty);
+        set_duty_fl(FrontLeft_motor_duty);
+        set_duty_rr(RearRight_motor_duty);
+        set_duty_rl(RearLeft_motor_duty);
+    } else {
+        FrontRight_motor_duty = 0.0;
+        FrontLeft_motor_duty  = 0.0;
+        RearRight_motor_duty  = 0.0;
+        RearLeft_motor_duty   = 0.0;
+        set_duty_fr(0.0);
+        set_duty_fl(0.0);
+        set_duty_rr(0.0);
+        set_duty_rl(0.0);
+        // OverG_flag=0;
+        Mode = PARKING_MODE;
     }
-
 }
