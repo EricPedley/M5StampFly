@@ -254,6 +254,11 @@ float Madgwick::invSqrt(float x) {
 
 void Madgwick::computeAngles()
 {
+	// equivalent to: 
+	// q = [q0, q1, q2, q3]
+    // r = Rotation.from_quat(q, scalar_first=True)
+    // roll, pitch, yaw = r.as_euler('xyz', degrees=False)
+    // return roll, pitch, yaw
 	roll = atan2f(q0*q1 + q2*q3, 0.5f - q1*q1 - q2*q2);
 	pitch = asinf(-2.0f * (q1*q3 - q0*q2));
 	yaw = atan2f(q1*q2 + q0*q3, 0.5f - q2*q2 - q3*q3);
