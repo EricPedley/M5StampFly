@@ -84,15 +84,17 @@ void OnDataRecv(const uint8_t *mac_addr, const uint8_t *recv_data, int data_len)
         Rc_err_flag = 0;
     } else {
         Rc_err_flag = 1;
+        USBSerial.println("Receive data MAC error");
         return;
     }
 
     // checksum
     uint8_t check_sum = 0;
-    for (uint8_t i = 0; i < 24; i++) check_sum = check_sum + recv_data[i];
+    for (uint8_t i = 0; i < 36; i++) check_sum = check_sum + recv_data[i];
     // if (check_sum!=recv_data[23])USBSerial.printf("checksum=%03d recv_sum=%03d\n\r", check_sum, recv_data[23]);
-    if (check_sum != recv_data[24]) {
+    if (check_sum != recv_data[36]) {
         Rc_err_flag = 1;
+        USBSerial.println("Receive data checksum error");
         return;
     }
 
@@ -146,16 +148,16 @@ void OnDataRecv(const uint8_t *mac_addr, const uint8_t *recv_data, int data_len)
     Stick[LOG] = 0.0;
     // if (check_sum!=recv_data[23])USBSerial.printf("checksum=%03d recv_sum=%03d\n\r", check_sum, recv_data[23]);
 
-  USBSerial.printf("%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f  %6.3f\n\r", 
-                                            Stick[THROTTLE],
-                                            Stick[AILERON],
-                                            Stick[ELEVATOR],
-                                            Stick[RUDDER],
-                                            Stick[BUTTON_ARM],
-                                            Stick[BUTTON_FLIP],
-                                            Stick[CONTROLMODE],
-                                            Stick[ALTCONTROLMODE],
-                                            Stick[LOG]);
+    // USBSerial.printf("%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f  %6.3f\n\r", 
+    //                                         Stick[THROTTLE],
+    //                                         Stick[AILERON],
+    //                                         Stick[ELEVATOR],
+    //                                         Stick[RUDDER],
+    //                                         Stick[BUTTON_ARM],
+    //                                         Stick[BUTTON_FLIP],
+    //                                         Stick[CONTROLMODE],
+    //                                         Stick[ALTCONTROLMODE],
+    //                                         Stick[LOG]);
 }
 
 // 送信コールバック
