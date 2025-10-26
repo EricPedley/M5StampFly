@@ -49,6 +49,9 @@ esp_now_peer_info_t peerInfo;
 // RC
 volatile float Stick[16];
 volatile uint8_t Recv_MAC[3];
+volatile float mocap_pos[3];
+volatile float mocap_yaw;
+volatile float mocap_vel[3];
 
 void on_esp_now_sent(const uint8_t *mac_addr, esp_now_send_status_t status);
 
@@ -93,37 +96,52 @@ void OnDataRecv(const uint8_t *mac_addr, const uint8_t *recv_data, int data_len)
         return;
     }
 
-    d_int         = (uint8_t *)&d_float;
-    d_int[0]      = recv_data[3];
-    d_int[1]      = recv_data[4];
-    d_int[2]      = recv_data[5];
-    d_int[3]      = recv_data[6];
-    Stick[RUDDER] = d_float;
+    // TODO change this so we can send custom data: 3 floats for position, 3 floats for orientation, 3 floats for setpoint position, 1 float for setpoint yaw
+    // total: 3+3+3+1 = 10 floats = 40 bytes
+    // also add control mode
+    // normal operation: setpoint starts at current pose and can be adjusted via sticks
+    // flip button: start folowing pre-programmed trajectory starting from current pose
 
-    d_int[0]        = recv_data[7];
-    d_int[1]        = recv_data[8];
-    d_int[2]        = recv_data[9];
-    d_int[3]        = recv_data[10];
-    Stick[THROTTLE] = d_float;
+    if(Stick[CONTROLMODE] != 6) {
+        d_int         = (uint8_t *)&d_float;
+        d_int[0]      = recv_data[3];
+        d_int[1]      = recv_data[4];
+        d_int[2]      = recv_data[5];
+        d_int[3]      = recv_data[6];
+        Stick[RUDDER] = d_float;
 
-    d_int[0]       = recv_data[11];
-    d_int[1]       = recv_data[12];
-    d_int[2]       = recv_data[13];
-    d_int[3]       = recv_data[14];
-    Stick[AILERON] = d_float;
+        d_int[0]        = recv_data[7];
+        d_int[1]        = recv_data[8];
+        d_int[2]        = recv_data[9];
+        d_int[3]        = recv_data[10];
+        Stick[THROTTLE] = d_float;
 
-    d_int[0]        = recv_data[15];
-    d_int[1]        = recv_data[16];
-    d_int[2]        = recv_data[17];
-    d_int[3]        = recv_data[18];
-    Stick[ELEVATOR] = d_float;
+        d_int[0]       = recv_data[11];
+        d_int[1]       = recv_data[12];
+        d_int[2]       = recv_data[13];
+        d_int[3]       = recv_data[14];
+        Stick[AILERON] = d_float;
 
-    Stick[BUTTON_ARM]     = recv_data[19];  // auto_up_down_status
-    Stick[BUTTON_FLIP]    = recv_data[20];
-    Stick[CONTROLMODE]    = recv_data[21];  // Mode:rate or angle control
-    Stick[ALTCONTROLMODE] = recv_data[22];  // 高度制御
+        d_int[0]        = recv_data[15];
+        d_int[1]        = recv_data[16];
+        d_int[2]        = recv_data[17];
+        d_int[3]        = recv_data[18];
+        Stick[ELEVATOR] = d_float;
+    } else {
+        memcpy((void*)&mocap_pos[0], &recv_data[3],     sizeof(float));
+        memcpy((void*)&mocap_pos[1], &recv_data[7],   sizeof(float));
+        memcpy((void*)&mocap_pos[2], &recv_data[11],   sizeof(float));
+        memcpy((void*)&mocap_yaw, &recv_data[15],  sizeof(float));
+        memcpy((void*)&mocap_vel[0], &recv_data[19],  sizeof(float));
+        memcpy((void*)&mocap_vel[1], &recv_data[23],  sizeof(float));
+        memcpy((void*)&mocap_vel[2], &recv_data[27],  sizeof(float));
+    }
+    Stick[BUTTON_ARM]     = recv_data[31];  // auto_up_down_status
+    Stick[BUTTON_FLIP]    = recv_data[32];
+    Stick[CONTROLMODE]    = recv_data[33];  // Mode:rate or angle control
+    Stick[ALTCONTROLMODE] = recv_data[34];  // 高度制御
 
-    ahrs_reset_flag = recv_data[23];
+    ahrs_reset_flag = recv_data[35];
 
     Stick[LOG] = 0.0;
     // if (check_sum!=recv_data[23])USBSerial.printf("checksum=%03d recv_sum=%03d\n\r", check_sum, recv_data[23]);
