@@ -102,7 +102,7 @@ void OnDataRecv(const uint8_t *mac_addr, const uint8_t *recv_data, int data_len)
     // normal operation: setpoint starts at current pose and can be adjusted via sticks
     // flip button: start folowing pre-programmed trajectory starting from current pose
 
-    if(Stick[CONTROLMODE] != 6) {
+    if(Stick[CONTROLMODE] != NN_MODE) {
         d_int         = (uint8_t *)&d_float;
         d_int[0]      = recv_data[3];
         d_int[1]      = recv_data[4];
