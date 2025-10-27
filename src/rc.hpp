@@ -77,4 +77,10 @@ extern volatile uint8_t Rc_err_flag;
 extern volatile uint8_t MyMacAddr[6];
 extern volatile uint8_t Recv_MAC[3];
 extern volatile uint16_t Connect_flag;
+
+// NOTE: these don't have any concurrency protection so there's nothing stopping me from reading mocap_pos[0] while mocap_pos[1] is being overwritten
+extern volatile float mocap_pos[3];
+extern volatile float mocap_yaw;
+extern volatile float mocap_vel[3];
+extern volatile float pos_setpoint[3];
 #endif

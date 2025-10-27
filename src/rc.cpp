@@ -52,6 +52,7 @@ volatile uint8_t Recv_MAC[3];
 volatile float mocap_pos[3];
 volatile float mocap_yaw;
 volatile float mocap_vel[3];
+volatile float pos_setpoint[3];
 
 void on_esp_now_sent(const uint8_t *mac_addr, esp_now_send_status_t status);
 
@@ -90,9 +91,10 @@ void OnDataRecv(const uint8_t *mac_addr, const uint8_t *recv_data, int data_len)
 
     // checksum
     uint8_t check_sum = 0;
-    for (uint8_t i = 0; i < 36; i++) check_sum = check_sum + recv_data[i];
+    int checkSumIndex = 48;
+    for (uint8_t i = 0; i < checkSumIndex; i++) check_sum = check_sum + recv_data[i];
     // if (check_sum!=recv_data[23])USBSerial.printf("checksum=%03d recv_sum=%03d\n\r", check_sum, recv_data[23]);
-    if (check_sum != recv_data[36]) {
+    if (check_sum != recv_data[checkSumIndex]) {
         Rc_err_flag = 1;
         USBSerial.println("Receive data checksum error");
         return;
@@ -137,13 +139,16 @@ void OnDataRecv(const uint8_t *mac_addr, const uint8_t *recv_data, int data_len)
         memcpy((void*)&mocap_vel[0], &recv_data[19],  sizeof(float));
         memcpy((void*)&mocap_vel[1], &recv_data[23],  sizeof(float));
         memcpy((void*)&mocap_vel[2], &recv_data[27],  sizeof(float));
+        memcpy((void*)&pos_setpoint[0], &recv_data[31], sizeof(float));
+        memcpy((void*)&pos_setpoint[1], &recv_data[35], sizeof(float));
+        memcpy((void*)&pos_setpoint[2], &recv_data[39], sizeof(float));
     }
-    Stick[BUTTON_ARM]     = recv_data[31];  // auto_up_down_status
-    Stick[BUTTON_FLIP]    = recv_data[32];
-    Stick[CONTROLMODE]    = recv_data[33];  // Mode:rate or angle control
-    Stick[ALTCONTROLMODE] = recv_data[34];  // 高度制御
+    Stick[BUTTON_ARM]     = recv_data[43];  // auto_up_down_status
+    Stick[BUTTON_FLIP]    = recv_data[44];
+    Stick[CONTROLMODE]    = recv_data[45];  // Mode:rate or angle control
+    Stick[ALTCONTROLMODE] = recv_data[46];  // 高度制御
 
-    ahrs_reset_flag = recv_data[35];
+    ahrs_reset_flag = recv_data[47];
 
     Stick[LOG] = 0.0;
     // if (check_sum!=recv_data[23])USBSerial.printf("checksum=%03d recv_sum=%03d\n\r", check_sum, recv_data[23]);
