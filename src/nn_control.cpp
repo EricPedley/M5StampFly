@@ -102,8 +102,8 @@ void nn_control(void) {
 
     nn_forward(nn_input, nn_output);
 
-    set_duty_fr(nn_output[0]);
-    set_duty_rr(nn_output[1]);
-    set_duty_rl(nn_output[2]);
-    set_duty_fl(nn_output[3]);
+    set_duty_fr((nn_output[0]+1.0)/2.0);
+    set_duty_rr((nn_output[1]+1.0)/2.0);
+    set_duty_rl((nn_output[2]+1.0)/2.0);
+    set_duty_fl((nn_output[3]+1.0)/2.0);
 }
