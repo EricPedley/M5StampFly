@@ -77,6 +77,12 @@ void OnDataRecv(const uint8_t *mac_addr, const uint8_t *recv_data, int data_len)
         }
     }
 
+    if(data_len<48) {
+        Rc_err_flag = 1;
+        USBSerial.println("Receive data length error");
+        return;
+    }
+
     Recv_MAC[0] = recv_data[0];
     Recv_MAC[1] = recv_data[1];
     Recv_MAC[2] = recv_data[2];
